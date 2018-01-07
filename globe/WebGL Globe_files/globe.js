@@ -136,7 +136,7 @@ DAT.Globe = function(container, opts) {
     mesh.scale.set( 1.1, 1.1, 1.1 );
     scene.add(mesh);
 
-    geometry = new THREE.BoxGeometry(1.75, 1.75, 10);
+    geometry = new THREE.BoxGeometry(0.75, 0.75, 1);
     geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
 
     point = new THREE.Mesh(geometry);
@@ -186,7 +186,7 @@ DAT.Globe = function(container, opts) {
         for (i = 0; i < data.length; i += step) {
           lat = data[i];
           lng = data[i + 1];
-          size = data[i + 2];
+//        size = data[i + 2];
           color = colorFnWrapper(data,i);
           size = 0;
           addPoint(lat, lng, size, color, this._baseGeometry);
@@ -252,7 +252,6 @@ DAT.Globe = function(container, opts) {
     point.position.x = 200 * Math.sin(phi) * Math.cos(theta);
     point.position.y = 200 * Math.cos(phi);
     point.position.z = 200 * Math.sin(phi) * Math.sin(theta);
-    point.geometry.size = 100
 
     // point.rotation.z = Math.PI/2; // Set initial rotation
     // // point.setRotationFromEuler(point.rotation);
@@ -260,9 +259,9 @@ DAT.Globe = function(container, opts) {
     console.log(mesh.position)
     t = new THREE.Vector3(mesh.position.x, mesh.position.y, mesh.position.z)
     point.lookAt(t);
-    point.rotation.z = Math.PI / 2
+    // point.rotation.z = Math.PI / 2
 
-    point.scale.z = Math.max( size, 0.5 ); // avoid non-invertible matrix
+    point.scale.z = Math.max( size, 0.1 ); // avoid non-invertible matrix
     point.updateMatrix();
 
     for (var i = 0; i < point.geometry.faces.length; i++) {
