@@ -142,7 +142,8 @@
         };
       };
       
-      
+      globe.addData([5,1,.1,40.7382712,-73.9956385,10], {format: 'magnitude', name: 'guh', animated: true});
+
       var xhr;
       var time = 0;
       
@@ -151,7 +152,6 @@
       xhr.onreadystatechange = function(e) {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
-            globe.addData([5,1,.1,40.7382712,-73.9956385,.5], {format: 'magnitude', name: 'guh', animated: true});
             globe.createPoints();
             settime(globe,time)();
             globe.animate();
@@ -176,7 +176,7 @@
     }
 
 
-refreshData(); // execute function
+// refreshData(); // execute function
 
   </script>
 

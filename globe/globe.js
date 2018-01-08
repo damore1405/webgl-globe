@@ -140,6 +140,7 @@ DAT.Globe = function(container, opts) {
     geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
 
     point = new THREE.Mesh(geometry);
+    point.matrixAutoUpdate = true;
 
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setSize(w, h);
@@ -188,7 +189,6 @@ DAT.Globe = function(container, opts) {
           lng = data[i + 1];
           size = data[i + 2];
           color = colorFnWrapper(data,i);
-          size = 0;
           addPoint(lat, lng, size, color, this._baseGeometry);
         }
       }
@@ -198,82 +198,51 @@ DAT.Globe = function(container, opts) {
         this._morphTargetId += 1;
       }
       opts.name = opts.name || 'morphTarget'+this._morphTargetId;
-    }
+      // this._baseGeometry.morphTargets.push({'name': opts.name, vertices: subgeo.vertices});
+    } else {
     var subgeo = new THREE.Geometry();
     for (i = 0; i < data.length; i += step) {
       lat = data[i];
       lng = data[i + 1];
-      color = colorFnWrapper(data,i);
+        color = colorFnWrapper(data,i);
       size = data[i + 2];
       size = size*200;
       addPoint(lat, lng, size, color, subgeo);
     }
-    if (opts.animated) {
-      this._baseGeometry.morphTargets.push({'name': opts.name, vertices: subgeo.vertices});
-    } else {
-      this._baseGeometry = subgeo;
-    }
+      // this._baseGeometry = subgeo;
 
+    }
   };
 
   function createPoints() {
-    if (this._baseGeometry !== undefined) {
-      if (this.is_animated === false) {
-        this.points = new THREE.Mesh(this._baseGeometry, new THREE.MeshBasicMaterial({
-              color: 0xffffff,
-              vertexColors: THREE.FaceColors,
-              morphTargets: false
-            }));
-      } else {
-        if (this._baseGeometry.morphTargets.length < 8) {
-          console.log('t l',this._baseGeometry.morphTargets.length);
-          var padding = 8-this._baseGeometry.morphTargets.length;
-          console.log('padding', padding);
-          for(var i=0; i<=padding; i++) {
-            console.log('padding',i);
-            this._baseGeometry.morphTargets.push({'name': 'morphPadding'+i, vertices: this._baseGeometry.vertices});
-          }
-        }
-        this.points = new THREE.Mesh(this._baseGeometry, new THREE.MeshBasicMaterial({
-              color: 0xffffff,
-              vertexColors: THREE.FaceColors,
-              morphTargets: true
-            }));
-      }
-      scene.add(this.points);
-    }
   }
 
   function addPoint(lat, lng, size, color, subgeo) {
 
+    var material = new THREE.MeshBasicMaterial( { color: 'beige' } );
+    var geometry = new THREE.BoxGeometry(1.75, 1.75, 10);
+    // geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
+    var pin = new THREE.Mesh(geometry, material);
+    pin.name = 'test'
     var phi = (90 - lat) * Math.PI / 180;
     var theta = (180 - lng) * Math.PI / 180;
 
-    point.position.x = 200 * Math.sin(phi) * Math.cos(theta);
-    point.position.y = 200 * Math.cos(phi);
-    point.position.z = 200 * Math.sin(phi) * Math.sin(theta);
-    point.geometry.size = 100
+    // pin.geometry.color = new THREE.Color(255,255,255);
+    pin.position.x = 200 * Math.sin(phi) * Math.cos(theta);
+    pin.position.y = 200 * Math.cos(phi);
+    pin.position.z = 200 * Math.sin(phi) * Math.sin(theta);
 
+    // pin.material.color.setHex('#ffffff')
     // point.rotation.z = Math.PI/2; // Set initial rotation
     // // point.setRotationFromEuler(point.rotation);
 
-    console.log(mesh.position)
     t = new THREE.Vector3(mesh.position.x, mesh.position.y, mesh.position.z)
-    point.lookAt(t);
-    point.rotation.z = Math.PI / 2
+    pin.lookAt(t);
 
-    point.scale.z = Math.max( size, 0.5 ); // avoid non-invertible matrix
-    point.updateMatrix();
-
-    for (var i = 0; i < point.geometry.faces.length; i++) {
-
-      point.geometry.faces[i].color = color;
-
-    }
-    if(point.matrixAutoUpdate){
-      point.updateMatrix();
-    }
-    subgeo.merge(point.geometry, point.matrix);
+    pin.scale.z = Math.max( size, 0.1 ); // avoid non-invertible matrix
+    pin.updateMatrix();
+    scene.add(pin);
+    // subgeo.merge(point.geometry, point.matrix);
   }
 
   function onMouseDown(event) {
@@ -340,9 +309,9 @@ DAT.Globe = function(container, opts) {
   }
 
   function onWindowResize( event ) {
-    camera.aspect = container.offsetWidth / container.offsetHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize( container.offsetWidth, container.offsetHeight );
+    renderer.setSize( window.innerWidth, window.innerHeight );
   }
 
   function zoom(delta) {
